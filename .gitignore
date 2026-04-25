@@ -1,0 +1,15 @@
+# Environments
+venv/
+.env
+
+# __pycache__
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+
+# Ignore text logs or temporary files we created
+assignment_text.txt
+platforms_text.txt
+temp_read_pdf.py
