@@ -1,83 +1,92 @@
-# AI Developer Assignment - RAG Chatbot
+# AI Developer Assignment - Advanced Agentic RAG Chatbot
 
-This repository contains a RAG-based Chatbot built with Python, FastAPI, and LangChain, featuring both an online model (Groq llama3-8b-8192) and an offline model (Ollama llama3.2).
+This repository contains an advanced RAG-based Chatbot built with Python, FastAPI, and LangChain. It features **Self-Healing AI**, **Contextual Compression Token Optimization**, and a robust **LangChain Expression Language (LCEL)** architecture. It supports both an online model (Groq llama3-8b-instant / OpenAI gpt-4o-mini) and an offline model (Ollama llama3.2).
 
-## Prerequisites
-- Python 3.9+ installed on your system.
-- A Groq API Key.
-- Postman Desktop Client.
+---
+
+## Architecture Highlights
+- **Token Optimization**: Uses `RecursiveCharacterTextSplitter` and an `EmbeddingsFilter` to only send the most relevant sentences to the LLM.
+- **Agentic Evaluator**: A built-in loop grades the LLM's own answer to prevent hallucinations.
+- **Self-Healing Retries**: Automatically rewrites the user query and retries if the initial retrieval fails.
+- **Dynamic Endpoints**: API accepts dynamic document uploads to instantly rebuild the vector store without restarting the server.
 
 ---
 
 ## Step 1: Environment Setup
 
-1. **Open your terminal or command prompt** and navigate to your project directory.
-2. **(Optional but recommended)** Create a virtual environment:
+1. **Open your terminal** and navigate to your project directory.
+2. **Activate the virtual environment** (Highly Recommended to prevent IDE module errors):
    ```bash
    python -m venv venv
    # On Windows
-   venv\Scripts\activate
+   .\venv\Scripts\activate
    # On MacOS/Linux
    source venv/bin/activate
    ```
 3. **Install Dependencies:**
-   Run the following command to install all the required libraries explicitly listed with versions in the `requirements.txt` file.
+   Run the following command to install all required libraries (including `langchain-groq`, `langchain-openai`, and `python-multipart`).
    ```bash
    pip install -r requirements.txt
    ```
-4. **Configure Environment Variables:**
-   Create a new file named `.env` in the same directory as the script. Add your OpenAI API key to it:
+4. **Configure API Keys:**
+   Create a `.env` file in the root directory. Add your desired keys:
    ```env
-   GROQ_API_KEY=your_groq_api_key_here
+   GROQ_API_KEY=your_groq_key_here
+   OPENAI_API_KEY=your_openai_key_here
+   ```
+   *(Note: Only GROQ is required for default functionality, but you can add OPENAI if you want to test provider switching).*
+
+---
+
+## Step 2: Starting the Servers
+
+1. **Start the FastAPI Server**:
+   In your activated terminal, run:
+   ```bash
+   uvicorn main:app --reload
+   ```
+2. **Start the Ollama Server (For Offline Mode)**:
+   Ensure your local Ollama desktop application is running in the background. If you haven't downloaded the offline model yet, run:
+   ```bash
+   ollama pull llama3.2
    ```
 
 ---
 
-## Step 2: Running the Application
+## Step 3: Step-by-Step Execution Guide
 
-1. Ensure the provided sample PDF (`Platforms Supported.pdf`) is in the same directory as `main.py`.
-2. Start the FastAPI server using `uvicorn`:
-   ```bash
-   python main.py
-   ```
-   *Alternatively:*
-   ```bash
-   uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-   ```
-3. Look at the terminal console output! 
-   You should see logs indicating:
-   - `Loading PDF: Platforms Supported.pdf`
-   - `Creating embeddings and FAISS index...`
-   - `Application startup complete.`
+To test the application properly, follow these strict sequential steps using the provided **Postman Collection**.
 
----
+1. **Import the Collection:**
+   Open Postman, click **Import**, and select the `postman_collection.json` file located in this repository.
 
-## Step 3: Testing using Postman Collection
+### Action 1: Upload the Data (Mandatory First Step)
+Because the RAG engine is dynamic, it does not load data on startup. You must upload the PDF into the server memory first!
+1. Select the **"5. Upload PDF Document"** request in Postman.
+2. Go to the **Body** tab. Hover over the `file` value field and click "Select Files".
+3. Choose the `Platforms Supported.pdf` file.
+4. Hit **Send**. You will receive a success message, and the terminal will log the text extraction and FAISS indexing process.
 
-1. Open **Postman**.
-2. Click on **Import** in the top left corner of the Postman application.
-3. Select the `postman_collection.json` file generated in this directory and import it.
-4. You will see a new collection named **"AI Developer API Collection"**. Expand it to view the pre-configured requests.
-
-### Testing Online Model
-1. Select **"1. Online Chatbot - WebLogic Versions"**.
-2. Assuming your local server is running, hit **Send**.
-3. View the response! The online RAG model will read the PDF FAISS index and return the answer about WebLogic versions supported. 
-   *(Note: You can add `"provider": "gpt"` or `"provider": "groq"` to your JSON body to switch between models! Default is groq).*
-
-### Testing Offline Model
-1. Select **"3. Offline Chatbot - Free Space"**.
+### Action 2: Test the Online RAG
+1. Select **"1. Online Chatbot - WebLogic Versions"** or **"2. Online Chatbot - eG Enterprise version"**.
 2. Hit **Send**.
-3. *Note:* Ensure that your local Ollama application is running and the `llama3.2` model is downloaded (`ollama pull llama3.2`).
-4. You will see clear **Console Logs** in your terminal indicating:
-   - `Fetching data from Mock API...`
-   - `Processing Offline LLM Query...`
-5. The API will respond with the answer generated natively on your machine based on the mock data injected.
-   *Take your screenshot of this request and response.*
+3. **Watch the Terminal logs!** You will see the Advanced Agentic Architecture in action:
+   - Extracting context via `ContextualCompressionRetriever`.
+   - Generating a draft answer via LCEL chain.
+   - Performing a *Self-Reflection Evaluation* to check for hallucinations.
+   - Outputting the verified answer in Postman!
+4. *(Optional)* You can change `"provider": "groq"` to `"provider": "gpt"` in the JSON body to dynamically switch LLMs!
+
+### Action 3: Test the Offline Chatbot
+1. Select **"3. Offline Chatbot - Free Space"** or **"4. Offline Chatbot - CPU Utilization"**.
+2. Hit **Send**.
+3. **Wait for Cold Start:** If this is your first time querying the offline model, Ollama will take 10-40 seconds to load the 2GB model into your computer's RAM. All subsequent requests will be instant!
+4. The API will respond natively without using the internet, generating an answer based on the mock server data injected into the prompt.
 
 ---
 
-## Deliverables Generated:
-- `main.py` and `rag_engine.py`: Python scripts with clear comments and modular structure.
-- `requirements.txt`: Project dependencies with library versions.
-- `postman_collection.json`: The fully configured Postman collection.
+## Deliverables Included
+- `main.py` & `rag_engine.py`: Fully modular backend code.
+- `requirements.txt`: Locked dependencies.
+- `postman_collection.json`: Testing endpoints.
+- `README.md`: This comprehensive step-by-step guide.
