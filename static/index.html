@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Answers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="header-left">
+                <button class="icon-btn" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </button>
+            </div>
+            <div class="header-center">
+                <div class="sparkle-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"></path></svg>
+                </div>
+                <h2>AI Answers</h2>
+            </div>
+            <div class="header-right">
+                <label for="pdf-upload" class="upload-btn" title="Upload Knowledge Base PDF">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </label>
+                <input type="file" id="pdf-upload" accept=".pdf" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-box" id="chat-box">
+            <div class="message ai-message">
+                <div class="message-label">AI assistant</div>
+                <div class="bubble">
+                    Hello, I can find answers from your uploaded knowledge base. Please upload a PDF using the icon in the top right to begin!
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="model-selector">
+                <select id="model-select" title="Choose the AI Model">
+                    <option value="online-groq">Online RAG (Groq - llama3.1)</option>
+                    <option value="online-gpt">Online RAG (OpenAI - gpt-4o-mini)</option>
+                    <option value="offline-ollama">Offline Chat (Local Ollama)</option>
+                </select>
+            </div>
+            <div class="input-wrapper">
+                <input type="text" id="user-input" placeholder="Ask a question..." autocomplete="off">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

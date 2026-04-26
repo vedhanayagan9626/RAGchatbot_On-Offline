@@ -1,0 +1,236 @@
+:root {
+    --primary-color: #7641a3;
+    --bg-color: #f7f7f9;
+    --chat-bg: #ffffff;
+    --ai-bubble: #f4f5f7;
+    --text-primary: #333333;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 450px;
+    height: 100vh;
+    max-height: 850px;
+    background-color: var(--chat-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Header */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-left, .header-right {
+    width: 32px;
+    display: flex;
+    justify-content: center;
+}
+
+.icon-btn, .upload-btn {
+    background: none;
+    border: none;
+    color: #4a5568;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+.upload-btn {
+    color: var(--primary-color);
+}
+
+.icon-btn:hover, .upload-btn:hover {
+    color: #2d3748;
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sparkle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e9d8fd 0%, #ffffff 100%);
+    border: 1px solid #d6bcfa;
+    color: var(--primary-color);
+}
+
+.header-center h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+/* Chat Box */
+.chat-box {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-message {
+    align-self: flex-start;
+}
+
+.user-message {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.message-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    margin-left: 4px;
+}
+
+.bubble {
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.ai-message .bubble {
+    background-color: var(--ai-bubble);
+    color: var(--text-primary);
+    border-top-left-radius: 4px;
+}
+
+.user-message .bubble {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+/* Input Area */
+.chat-input-area {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.model-selector select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-color);
+    color: var(--text-secondary);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+}
+
+.input-wrapper input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.input-wrapper input::placeholder {
+    color: #a0aec0;
+}
+
+/* Loading Dots */
+.loading-dots {
+    display: flex;
+    gap: 4px;
+    padding: 18px 20px;
+    background-color: var(--ai-bubble);
+    border-radius: 12px;
+    border-top-left-radius: 4px;
+    align-self: flex-start;
+    width: fit-content;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background-color: #a0aec0;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); background-color: var(--primary-color); }
+}
+
+/* Toast */
+.toast {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.toast.show {
+    opacity: 1;
+}

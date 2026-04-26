@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
@@ -20,6 +22,13 @@ app = FastAPI(
 )
 
 # Vector store is initialized via the /upload-pdf endpoint only.
+
+# Serve Static Files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def read_root():
+    return FileResponse("static/index.html")
 
 class ChatRequest(BaseModel):
     query: str
