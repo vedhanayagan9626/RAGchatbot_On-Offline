@@ -1,17 +1,23 @@
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 from typing import Dict, Any
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+from langchain_community.llms import Ollama
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
-from transformers import pipeline
+from langchain.prompts import PromptTemplate
 
 class RAGEngine:
     def __init__(self):
         # Online RAG components
         self.vector_store = None
-        self.qa_chain = None
         
         # Offline model components (Using a small pre-trained model for quick local inference)
         # We load this lazily to save startup time
@@ -19,18 +25,21 @@ class RAGEngine:
 
     def initialize_online_rag(self, pdf_path: str):
         """
-        Reads the given PDF, chunks it, and builds a FAISS vector index using OpenAI embeddings.
-        Sets up the RetrivalQA chain.
+        Reads the given PDF, chunks it, and builds a FAISS vector index using HuggingFace embeddings.
         """
-        if not os.environ.get("OPENAI_API_KEY"):
-            raise ValueError("OPENAI_API_KEY environment variable is missing.")
+        # Ensure at least one online API key is present
+        if not os.environ.get("GROQ_API_KEY") and not os.environ.get("OPENAI_API_KEY"):
+            logger.warning("Neither GROQ_API_KEY nor OPENAI_API_KEY is set. Online RAG will not work.")
 
-        print(f"Loading PDF: {pdf_path}")
+        logger.info(f"Loading PDF: {pdf_path}")
+        logger.info("Extracting text from PDF pages...")
         # Extract text from PDF
         reader = PdfReader(pdf_path)
         raw_text = ""
         for page in reader.pages:
             raw_text += page.extract_text() + "\n"
+        
+        logger.info(f"Successfully extracted {len(raw_text)} characters from {len(reader.pages)} pages.")
         
         # Split text into chunks
         text_splitter = CharacterTextSplitter(
@@ -42,30 +51,57 @@ class RAGEngine:
         texts = text_splitter.split_text(raw_text)
         
         # Create embeddings and vector store
-        print("Creating embeddings and FAISS index...")
-        embeddings = OpenAIEmbeddings()
+        logger.info("Creating embeddings and FAISS index from document chunks...")
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         self.vector_store = FAISS.from_texts(texts, embeddings)
+        logger.info("Online RAG Vector Store initialized successfully.")
+
+    def query_online_rag(self, query: str, provider: str = "groq") -> str:
+        """
+        Queries the online RAG application using the chosen provider (groq or gpt).
+        """
+        if not self.vector_store:
+            raise ValueError("Online RAG vector store is not initialized. Call /upload-pdf first or ensure the app loads the PDF on startup.")
         
-        # Initialize QA chain
-        print("Initializing QA Chain...")
-        llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0) # Using a modern/efficient GPT model
-        self.qa_chain = RetrievalQA.from_chain_type(
+        logger.info(f"Processing Online LLM Query using {provider.upper()}: {query}")
+        
+        if provider == "groq":
+            if not os.environ.get("GROQ_API_KEY"):
+                raise ValueError("GROQ_API_KEY is not set.")
+            llm = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0)
+        elif provider == "gpt":
+            if not os.environ.get("OPENAI_API_KEY"):
+                raise ValueError("OPENAI_API_KEY is not set.")
+            llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
+        else:
+            raise ValueError(f"Invalid provider: {provider}. Choose 'groq' or 'gpt'.")
+
+        prompt_template = """Use the following pieces of context to answer the user's question. 
+Answer strictly and concisely with only the final answer. Do not include any extra formatting, logs, or surrounding text.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+        
+        PROMPT = PromptTemplate(
+            template=prompt_template, input_variables=["context", "question"]
+        )
+
+        qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
-            retriever=self.vector_store.as_retriever()
+            retriever=self.vector_store.as_retriever(),
+            chain_type_kwargs={"prompt": PROMPT}
         )
-        print("Online RAG Engine initialized successfully.")
-
-    def query_online_rag(self, query: str) -> str:
-        """
-        Queries the OpenAI GPT-based RAG application.
-        """
-        if not self.qa_chain:
-            raise ValueError("Online RAG Engine is not initialized. Call /upload-pdf first or ensure the app loads the PDF on startup.")
         
-        print(f"Processing Online LLM Query: {query}")
-        result = self.qa_chain.invoke(query)
-        return result["result"]
+        logger.info("Invoking QA Chain...")
+        result = qa_chain.invoke(query)
+        answer = result["result"]
+        logger.info(f"Successfully processed {provider.upper()} response: \n{answer}\n")
+        return answer
 
     def get_mock_api_data(self) -> Dict[str, Any]:
         """
@@ -86,15 +122,13 @@ class RAGEngine:
         Reads data from the mock API and uses a local offline HuggingFace model 
         to answer the user's question based on that API data.
         """
-        # Load local HuggingFace offline model (e.g. TinyLlama or Flan-T5)
-        # We use a smaller model here to ensure it runs without requiring huge GPU/RAM.
+        # Load local Ollama offline model
         if self.offline_pipeline is None:
-            print("Loading offline Huggingface model... This might take a bit on the first run.")
-            # google/flan-t5-small is a very efficient and small instruction-following model (~300MB)
-            self.offline_pipeline = pipeline("text2text-generation", model="google/flan-t5-small")
+            logger.info("Connecting to local Ollama instance... using llama3.2")
+            self.offline_pipeline = Ollama(model="llama3.2")
         
         # 1. Read data from API
-        print("Fetching data from Mock API...")
+        logger.info("Fetching data from Mock API...")
         api_data = self.get_mock_api_data()
         
         # 2. Formulate Prompt containing the API context
@@ -107,11 +141,13 @@ class RAGEngine:
         )
         
         prompt = f"Context: {context}\n\nQuestion: {query}\n\nAnswer:"
-        print(f"Processing Offline LLM Query: {query}")
+        logger.info(f"Processing Offline LLM Query: {query}")
         
         # 3. Generate Answer
-        result = self.offline_pipeline(prompt, max_length=100)
-        return result[0]["generated_text"]
+        logger.info("Invoking offline pipeline...")
+        result = self.offline_pipeline.invoke(prompt)
+        logger.info(f"Successfully processed offline response: \n{result}\n")
+        return result
 
 # Singleton instance to be used by the router
 rag_engine = RAGEngine()

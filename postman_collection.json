@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "1. Online Chatbot - WebLogic Versions",
+			"name": "1. Online Chatbot (Groq) - WebLogic Versions",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -18,7 +18,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"query\": \"Do you support WebLogic and what versions of WebLogic is supported?\"}"
+					"raw": "{\"query\": \"Do you support WebLogic and what versions of WebLogic is supported?\", \"provider\": \"groq\"}"
 				},
 				"url": {
 					"raw": "http://127.0.0.1:8000/chat/online",
@@ -39,7 +39,7 @@
 			"response": []
 		},
 		{
-			"name": "2. Online Chatbot - IBM Mainframe",
+			"name": "2. Online Chatbot (GPT) - IBM Mainframe",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -50,7 +50,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"query\": \"Do you support IBM Mainframe?\"}"
+					"raw": "{\"query\": \"Do you support IBM Mainframe?\", \"provider\": \"gpt\"}"
 				},
 				"url": {
 					"raw": "http://127.0.0.1:8000/chat/online",
@@ -129,6 +129,38 @@
 					"path": [
 						"chat",
 						"offline"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Upload PDF Document",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/upload-pdf",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"upload-pdf"
 					]
 				}
 			},

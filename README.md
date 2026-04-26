@@ -1,10 +1,10 @@
 # AI Developer Assignment - RAG Chatbot
 
-This repository contains a RAG-based Chatbot built with Python, FastAPI, and LangChain, featuring both an online model (GPT-4o-mini) and an offline model (HuggingFace flan-t5-small).
+This repository contains a RAG-based Chatbot built with Python, FastAPI, and LangChain, featuring both an online model (Groq llama3-8b-8192) and an offline model (Ollama llama3.2).
 
 ## Prerequisites
 - Python 3.9+ installed on your system.
-- An OpenAI API Key.
+- A Groq API Key.
 - Postman Desktop Client.
 
 ---
@@ -28,7 +28,7 @@ This repository contains a RAG-based Chatbot built with Python, FastAPI, and Lan
 4. **Configure Environment Variables:**
    Create a new file named `.env` in the same directory as the script. Add your OpenAI API key to it:
    ```env
-   OPENAI_API_KEY=your_openai_api_key_here
+   GROQ_API_KEY=your_groq_api_key_here
    ```
 
 ---
@@ -62,13 +62,13 @@ This repository contains a RAG-based Chatbot built with Python, FastAPI, and Lan
 ### Testing Online Model
 1. Select **"1. Online Chatbot - WebLogic Versions"**.
 2. Assuming your local server is running, hit **Send**.
-3. View the response! The online GPT-based model will read the PDF FAISS index and return the answer about WebLogic versions supported.
-   *Take your screenshot of this request and response as required by the assignment.*
+3. View the response! The online RAG model will read the PDF FAISS index and return the answer about WebLogic versions supported. 
+   *(Note: You can add `"provider": "gpt"` or `"provider": "groq"` to your JSON body to switch between models! Default is groq).*
 
 ### Testing Offline Model
 1. Select **"3. Offline Chatbot - Free Space"**.
 2. Hit **Send**.
-3. *Note:* On the very first run, it will take a few seconds to download the lightweight `google/flan-t5-small` huggingface model to your system.
+3. *Note:* Ensure that your local Ollama application is running and the `llama3.2` model is downloaded (`ollama pull llama3.2`).
 4. You will see clear **Console Logs** in your terminal indicating:
    - `Fetching data from Mock API...`
    - `Processing Offline LLM Query...`
