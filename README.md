@@ -62,14 +62,15 @@ To test the application properly, follow these strict sequential steps using the
 
 ### Action 1: Upload the Data (Mandatory First Step)
 Because the RAG engine is dynamic, it does not load data on startup. You must upload the PDF into the server memory first!
-1. Select the **"5. Upload PDF Document"** request in Postman.
+1. Select the **"Upload PDF Document"** request in Postman.
 2. Go to the **Body** tab. Hover over the `file` value field and click "Select Files".
 3. Choose the `Platforms Supported.pdf` file.
 4. Hit **Send**. You will receive a success message, and the terminal will log the text extraction and FAISS indexing process.
 
 ### Action 2: Test the Online RAG
-1. Select **"1. Online Chatbot - WebLogic Versions"** or **"2. Online Chatbot - eG Enterprise version"**.
-2. Hit **Send**.
+1. Select **"Online Chatbot"**.
+2. Go to the **Body** tab and modify the `query` field to ask any question about the uploaded PDF.
+3. Hit **Send**.
 3. **Watch the Terminal logs!** You will see the Advanced Agentic Architecture in action:
    - Extracting context via `ContextualCompressionRetriever`.
    - Generating a draft answer via LCEL chain.
@@ -78,8 +79,9 @@ Because the RAG engine is dynamic, it does not load data on startup. You must up
 4. *(Optional)* You can change `"provider": "groq"` to `"provider": "gpt"` in the JSON body to dynamically switch LLMs!
 
 ### Action 3: Test the Offline Chatbot
-1. Select **"3. Offline Chatbot - Free Space"** or **"4. Offline Chatbot - CPU Utilization"**.
-2. Hit **Send**.
+1. Select **"Offline Chatbot"**.
+2. Go to the **Body** tab and modify the `query` field to ask about server mock data (e.g., Free Space or CPU).
+3. Hit **Send**.
 3. **Wait for Cold Start:** If this is your first time querying the offline model, Ollama will take 10-40 seconds to load the 2GB model into your computer's RAM. All subsequent requests will be instant!
 4. The API will respond natively without using the internet, generating an answer based on the mock server data injected into the prompt.
 

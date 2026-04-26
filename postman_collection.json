@@ -7,7 +7,39 @@
 	},
 	"item": [
 		{
-			"name": "1. Online Chatbot (Groq) - WebLogic Versions",
+			"name": "Upload PDF Document",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/upload-pdf",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"upload-pdf"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Online Chatbot",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -39,39 +71,7 @@
 			"response": []
 		},
 		{
-			"name": "2. Online Chatbot (GPT) - IBM Mainframe",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"query\": \"Do you support IBM Mainframe?\", \"provider\": \"gpt\"}"
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/chat/online",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"chat",
-						"online"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "3. Offline Chatbot - Free Space",
+			"name": "Offline Chatbot",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -97,70 +97,6 @@
 					"path": [
 						"chat",
 						"offline"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "4. Offline Chatbot - CPU Utilization",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"query\": \"What is the CPU Utilization for the server 10.200.2.192?\"}"
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/chat/offline",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"chat",
-						"offline"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "5. Upload PDF Document",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "file",
-							"type": "file",
-							"src": []
-						}
-					]
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/upload-pdf",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"upload-pdf"
 					]
 				}
 			},
